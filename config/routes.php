@@ -72,15 +72,22 @@ Router::scope('/', function (RouteBuilder $routes) {
             ['controller' => 'Books', 'action' => 'index']
         );
 
+        $routes->connect(
+            '/books/:id',
+            ['controller' => 'Books', 'action' => 'view'],
+            ['id' => '[0-9]+', 'pass' => ['id']]
+        )->setMethods(['GET']);
+
         $routes->post(
             '/books',
             ['controller' => 'Books', 'action' => 'add']
         );
 
-        $routes->put(
-            '/books',
-            ['controller' => 'Books', 'action' => 'edit']
-        );
+        $routes->connect(
+            '/books/:id',
+            ['controller' => 'Books', 'action' => 'edit'],
+            ['id' => '[0-9]+', 'pass' => ['id']]
+        )->setMethods(['PUT']);
 
         $routes->connect(
             '/books/:id/authors',

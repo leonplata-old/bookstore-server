@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use Cake\ORM\TableRegistry;
 use App\Controller\AppController;
+use Cake\Network\Exception\InternalErrorException;
 
 /**
  * Books Controller
@@ -22,8 +23,7 @@ class BooksController extends AppController
                 "minLength": 1
             },
             "edition_date": {
-                "type": "string",
-                "format": "date-time"
+                "type": "string"
             }
         },
         "required": ["title"],
@@ -112,20 +112,13 @@ class BooksController extends AppController
     {
         $data = $this->getJsonInput(BooksController::ADD_BOOK_BODY_SCHEMA);
 
-        $book = $this->Books->get($id, [
-            'contain' => ['Authors']
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $book = $this->Books->patchEntity($book, $this->request->getData());
-            if ($this->Books->save($book)) {
-                $this->Flash->success(__('The book has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The book could not be saved. Please, try again.'));
+        $book = $this->Books->get($id);
+        $book = $this->Books->patchEntity($book, $this->request->getData());
+        if (!$this->Books->save($book)) {
+            $this->Flash->error(__('The book could not be updated. Please, try again.'));
+            throw new InternalErrorException(__('The book could not be updated. Please, try again.'));
         }
-        $authors = $this->Books->Authors->find('list', ['limit' => 200]);
-        $this->set(compact('book', 'authors'));
+        $this->set(compact('book'));
         $this->set('_serialize', ['book']);
     }
 
