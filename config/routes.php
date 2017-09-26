@@ -44,34 +44,51 @@ use Cake\Routing\Route\DashedRoute;
 Router::defaultRouteClass(DashedRoute::class);
 
 Router::scope('/', function (RouteBuilder $routes) {
-    /**
-     * Here, we are connecting '/' (base path) to a controller called 'Pages',
-     * its action called 'display', and we pass a param to select the view file
-     * to use (in this case, src/Template/Pages/home.ctp)...
-     */
-    $routes->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
 
-    /**
-     * ...and connect the rest of 'Pages' controller's URLs.
-     */
-    $routes->connect('/pages/*', ['controller' => 'Pages', 'action' => 'display']);
+    $routes->scope('/api', function (RouteBuilder $routes) {
 
-    /**
-     * Connect catchall routes for all controllers.
-     *
-     * Using the argument `DashedRoute`, the `fallbacks` method is a shortcut for
-     *    `$routes->connect('/:controller', ['action' => 'index'], ['routeClass' => 'DashedRoute']);`
-     *    `$routes->connect('/:controller/:action/*', [], ['routeClass' => 'DashedRoute']);`
-     *
-     * Any route class can be used with this method, such as:
-     * - DashedRoute
-     * - InflectedRoute
-     * - Route
-     * - Or your own route class
-     *
-     * You can remove these routes once you've connected the
-     * routes you want in your application.
-     */
+        // Authors
+
+        $routes->get(
+            '/authors',
+            ['controller' => 'Authors', 'action' => 'index']
+        );
+
+        $routes->connect(
+            '/authors/:id',
+            ['controller' => 'Authors', 'action' => 'view'],
+            ['id' => '[0-9]+', 'pass' => ['id']]
+        )->setMethods(['GET']);
+
+        $routes->post(
+            '/authors',
+            ['controller' => 'Authors', 'action' => 'add']
+        );
+
+        // Books
+
+        $routes->get(
+            '/books',
+            ['controller' => 'Books', 'action' => 'index']
+        );
+
+        $routes->post(
+            '/books',
+            ['controller' => 'Books', 'action' => 'add']
+        );
+
+        $routes->put(
+            '/books',
+            ['controller' => 'Books', 'action' => 'edit']
+        );
+
+        $routes->connect(
+            '/books/:id/authors',
+            ['controller' => 'Books', 'action' => 'associate'],
+            ['id' => '[0-9]+', 'pass' => ['id']]
+        )->setMethods(['PATCH']);
+    });
+
     $routes->fallbacks(DashedRoute::class);
 });
 
