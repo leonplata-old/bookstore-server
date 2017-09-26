@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ed4fc0ae8c8d9fc603d5376d4bd9812",
+    "content-hash": "f50a06e396b253216795e60f15bb07ef",
     "packages": [
         {
             "name": "aura/intl",
@@ -508,6 +508,37 @@
                 "php mobile detect"
             ],
             "time": "2017-08-29T18:23:54+00:00"
+        },
+        {
+            "name": "ozee31/cakephp-cors",
+            "version": "v1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ozee31/cakephp-cors.git",
+                "reference": "3e56f65a597878785e22897cf2029f4c06a489e4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ozee31/cakephp-cors/zipball/3e56f65a597878785e22897cf2029f4c06a489e4",
+                "reference": "3e56f65a597878785e22897cf2029f4c06a489e4",
+                "shasum": ""
+            },
+            "require": {
+                "cakephp/cakephp": ">=3.3.2 <4.0.0",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "5.*"
+            },
+            "type": "cakephp-plugin",
+            "autoload": {
+                "psr-4": {
+                    "Cors\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "A CakePHP (3.3.x) plugin for activate cors domain in your application",
+            "time": "2017-08-14T09:04:18+00:00"
         },
         {
             "name": "psr/container",

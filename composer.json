@@ -11,7 +11,8 @@
         "cakephp/migrations": "~1.0",
         "cakephp/plugin-installer": "~1.0",
         "josegonzalez/dotenv": "2.*",
-        "league/json-guard": "^1.0"
+        "league/json-guard": "^1.0",
+        "ozee31/cakephp-cors": "^1.1"
     },
     "require-dev": {
         "psy/psysh": "@stable",
