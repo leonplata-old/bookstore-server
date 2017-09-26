@@ -1,10 +1,8 @@
 <?php
 namespace App\Controller;
 
-use Cake\Network\Exception\BadRequestException;
-use League\JsonGuard\Validator as JsonValidator;
-use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
+use App\Controller\AppController;
 
 /**
  * Books Controller
@@ -59,6 +57,8 @@ class BooksController extends AppController
      */
     public function index()
     {
+        $sort = $this->request->query('sort');
+        $filter = $this->request->query('filter');
         $books = $this->paginate($this->Books);
 
         $this->set(compact('books'));
@@ -89,29 +89,16 @@ class BooksController extends AppController
      */
     public function add()
     {
-        $schema = json_decode(BooksController::ADD_BOOK_BODY_SCHEMA);
-        $data = $this->request->input('json_decode');
+        $data = $this->getJsonInput(BooksController::ADD_BOOK_BODY_SCHEMA);
 
-        $validator = new JsonValidator($data, $schema);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors();
-            $firstError = array_values($errors)[0];
-
-            // 422 "Unprocessable Entity" is more suitable but seems CakePHP doesn't have a
-            // built-in exception for this HTTP status code, using "Bad Request" instead
-            // TODO: Send meaningful data about the validation through exception
-            throw new BadRequestException($firstError->getMessage());
+        $book = $this->Books->newEntity((array) $data);
+        if (!$this->Books->save($book)) {
+            $this->Flash->error(__('The book could not be saved. Please, try again.'));
         }
-
-         $book = $this->Books->newEntity((array) $data);
-         if (!$this->Books->save($book)) {
-             $this->Flash->error(__('The book could not be saved. Please, try again.'));
-         }
-         $this->Flash->success(__('The book has been saved.'));
-         $author = $this->Books->Authors->find('list', ['limit' => 200]);
-         $this->set(compact('book', 'author'));
-         $this->set('_serialize', ['book']);
+        $this->Flash->success(__('The book has been saved.'));
+        $author = $this->Books->Authors->find('list', ['limit' => 200]);
+        $this->set(compact('book', 'author'));
+        $this->set('_serialize', ['book']);
     }
 
     /**
@@ -123,21 +110,7 @@ class BooksController extends AppController
      */
     public function edit($id = null)
     {
-        $schema = json_decode(BooksController::ADD_BOOK_BODY_SCHEMA);
-        $data = $this->request->input('json_decode');
-
-        $validator = new JsonValidator($data, $schema);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors();
-            $firstError = array_values($errors)[0];
-
-            // 422 "Unprocessable Entity" is more suitable but seems CakePHP doesn't have a
-            // built-in exception for this HTTP status code, using "Bad Request" instead
-            // TODO: Send meaningful data about the validation through exception
-            throw new BadRequestException($firstError->getMessage());
-        }
-
+        $data = $this->getJsonInput(BooksController::ADD_BOOK_BODY_SCHEMA);
 
         $book = $this->Books->get($id, [
             'contain' => ['Authors']
@@ -179,25 +152,14 @@ class BooksController extends AppController
     /**
      * Associate method
      *
+     * @param string|null $id Book id.
      */
     public function associate($id = null)
     {
-        $schema = json_decode(BooksController::ASSOCIATE_AUTHOR_BODY_SCHEMA);
-        $data = $this->request->input('json_decode');
-
-        $validator = new JsonValidator($data, $schema);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors();
-            $firstError = array_values($errors)[0];
-
-            throw new BadRequestException($firstError->getMessage());
-        }
+        $data = $this->getJsonInput(BooksController::ASSOCIATE_AUTHOR_BODY_SCHEMA);
 
         $book = $this->Books->get($id);
-
         $booksTable = TableRegistry::get('Books');
-
         $added = [];
         $removed = [];
 

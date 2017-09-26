@@ -1,8 +1,6 @@
 <?php
 namespace App\Controller;
 
-use Cake\Network\Exception\BadRequestException;
-use League\JsonGuard\Validator as JsonValidator;
 use App\Controller\AppController;
 
 /**
@@ -63,29 +61,16 @@ class AuthorsController extends AppController
      */
      public function add()
      {
-        $schema = json_decode(AuthorsController::ADD_AUTHOR_BODY_SCHEMA);
-        $data = $this->request->input('json_decode');
+        $data = $this->getJsonInput(AuthorsController::ADD_AUTHOR_BODY_SCHEMA);
 
-        $validator = new JsonValidator($data, $schema);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors();
-            $firstError = array_values($errors)[0];
-
-            // 422 "Unprocessable Entity" is more suitable but seems CakePHP doesn't have a
-            // built-in exception for this HTTP status code, using "Bad Request" instead
-            // TODO: Send meaningful data about the validation through exception
-            throw new BadRequestException($firstError->getMessage());
+        $author = $this->Authors->newEntity((array) $data);
+        if (!$this->Authors->save($author)) {
+            $this->Flash->error(__('The author could not be saved. Please, try again.'));
         }
-
-         $author = $this->Authors->newEntity((array) $data);
-         if (!$this->Authors->save($author)) {
-             $this->Flash->error(__('The author could not be saved. Please, try again.'));
-         }
-         $this->Flash->success(__('The author has been saved.'));
-         $book = $this->Authors->Books->find('list', ['limit' => 200]);
-         $this->set(compact('author', 'book'));
-         $this->set('_serialize', ['author']);
+        $this->Flash->success(__('The author has been saved.'));
+        $book = $this->Authors->Books->find('list', ['limit' => 200]);
+        $this->set(compact('author', 'book'));
+        $this->set('_serialize', ['author']);
      }
 
     /**

@@ -16,6 +16,8 @@ namespace App\Controller;
 
 use Cake\Controller\Controller;
 use Cake\Event\Event;
+use Cake\Network\Exception\BadRequestException;
+use League\JsonGuard\Validator as JsonValidator;
 
 /**
  * Application Controller
@@ -68,5 +70,24 @@ class AppController extends Controller
         ) {
             $this->set('_serialize', true);
         }
+    }
+
+    protected function getJsonInput(string $schemaStr) {
+        $schema = json_decode($schemaStr);
+        $data = $this->request->input('json_decode');
+
+        $validator = new JsonValidator($data, $schema);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+            $firstError = array_values($errors)[0];
+
+            // 422 "Unprocessable Entity" is more suitable but seems CakePHP doesn't have a
+            // built-in exception for this HTTP status code, using "Bad Request" instead
+            // TODO: Send meaningful data about the validation through exception
+            throw new BadRequestException($firstError->getMessage());
+        }
+
+        return $data;
     }
 }
