@@ -57,9 +57,7 @@ class BooksController extends AppController
      */
     public function index()
     {
-        $sort = $this->request->query('sort');
-        $filter = $this->request->query('filter');
-        $books = $this->paginate($this->Books);
+        $books = $this->paginate($this->Books->find()->contain(['Authors']));
 
         $this->set(compact('books'));
         $this->set('_serialize', ['books']);
@@ -112,7 +110,9 @@ class BooksController extends AppController
     {
         $data = $this->getJsonInput(BooksController::ADD_BOOK_BODY_SCHEMA);
 
-        $book = $this->Books->get($id);
+        $book = $this->Books->get($id, [
+            'contain' => ['Authors']
+        ]);
         $book = $this->Books->patchEntity($book, $this->request->getData());
         if (!$this->Books->save($book)) {
             $this->Flash->error(__('The book could not be updated. Please, try again.'));
