@@ -57,9 +57,9 @@ class BooksController extends AppController
      */
     public function index()
     {
-        // Temporarily removed pagination
+        // WARNING: Temporarily removed pagination
         //$books = $this->paginate($this->Books->find()->contain(['Authors']));
-        $books = $this->Books->find()->contain(['Authors']);
+        $books = $this->Books->find('all')->contain(['Authors']);
 
         $this->set(compact('books'));
         $this->set('_serialize', ['books']);
